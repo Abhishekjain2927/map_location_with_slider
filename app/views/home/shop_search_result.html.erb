@@ -1,0 +1,182 @@
+<% @near_by_shops.each do |shop| %>  
+<h6><%= shop.name %></h6>
+<h6><%= shop.address %></h6>
+<%= link_to shop_path(shop), class: "btn btn-primary" do %>show
+<% end %>
+ <% end %>
+ <br>
+
+ <div class="col-md-5">
+      <div id="map" style="width:100%;height:500px;"></div>
+    </div>
+  </div>
+</div>
+
+ <!-- <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAC1cqAmyA4B5g45X12AYT61H3XLUzUQxs"></script>  -->
+      <b><p id="demo"></p></b>
+
+
+ <script type="text/javascript">
+ var im = 'http://www.robotwoods.com/dev/misc/bluecircle.png';
+
+        var x = document.getElementById("demo");
+        if (navigator.geolocation){
+          navigator.geolocation.getCurrentPosition(showCurrentLocation);
+        }
+        else{
+          alert("Geolocation API not supported.");
+        }
+
+        function showCurrentLocation(position){
+          var address = position.coords.address;
+          var latitude = position.coords.latitude;
+          var longitude = position.coords.longitude;
+          var coords = new google.maps.LatLng(latitude, longitude, address);
+          
+          /*x.innerHTML="Latitude: " + position.coords.latitude + 
+          "<br>Longitude: " + position.coords.longitude + 
+          "<br>address: " + position.coords.address;
+*/    //
+        var mapOptions = {
+      zoom: 15,
+      center: coords,
+      mapTypeControl: true,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+
+  var locations = [];
+
+  <% @near_by_shops.each do |shop| %>
+    locations.push(["<%= shop.name %>", <%= shop.latitude %>, <%= shop.longitude %>])
+  <% end %>
+
+
+
+  var map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 11,
+    center: new google.maps.LatLng(locations[0][1], locations[0][2]),
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  });
+
+  var marker = new google.maps.Marker({
+              position: coords,
+              map: map,
+              icon: im
+            });
+    
+  var infowindow = new google.maps.InfoWindow();
+
+  var marker, i;
+
+  for (i = 0; i < locations.length; i++) {  
+    marker = new google.maps.Marker({
+      position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+      map: map
+    });
+
+    google.maps.event.addListener(marker, 'click', (function(marker, i) {
+      return function() {
+        infowindow.setContent(locations[i][0]);
+        infowindow.open(map, marker);
+      }
+    })(marker, i));
+  }}
+
+</script>
+<script 
+  async defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAC1cqAmyA4B5g45X12AYT61H3XLUzUQxs&callback=initMap">
+</script>
+<br>
+
+
+<!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+ --><!-- <link rel="stylesheet" href="/resources/demos/style.css"> -->
+<!--  <style>
+  #slider{
+    margin-top:40% ; 
+    width:40em;
+  }
+  #custom-handle{
+    width: 2em;
+    height: 1.6em;
+    top: 50%;
+    margin-top: -.8em;
+    text-align: center;
+    line-height: 1.6em;
+  }
+</style>
+             
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script> 
+  $( function() {
+    var handle = $( "#custom-handle" );
+    $( "#slider" ).slider({
+
+      create: function() {
+        handle.text( $( this ).slider( "value" ) );
+      },
+      slide: function( event, ui ) {
+        
+        handle.text( ui.value );
+      }
+    });
+  } );
+
+
+  </script>
+
+
+<body>
+      <div id = "slider" >
+        <div id="custom-handle" class="ui-slider-handle"></div>
+      </div>
+
+</body>
+ -->
+
+<!-- <script type="text/javascript">
+  $("#internal_btn").click(function() {
+            //window.alert("clicked internal btn!");
+            $.ajax({
+                type: "GET",
+               
+                url: "/shop_search_result",
+                
+                
+      
+        });
+</script> -->
+
+
+<%= form_for :shop_search, url: :shop_search_result, method: :get , :remote=>true do |f| %>  
+
+ <%= f.hidden_field :latitude, value: @lat %>
+  <%= f.hidden_field :longitude, value: @long %>
+<%= f.range_field :kms , onchange: 'this.form.submit();' , id:"slider1" %>
+
+<%end %>
+<%  @near_by_shops = Shop.near([@lat, @long], 50, units: :km) %>
+
+
+
+
+
+
+
+
+<link href = "https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css"
+         rel = "stylesheet">
+      <script src = "https://code.jquery.com/jquery-1.10.2.js"></script>
+      <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
+      <!-- Javascript -->
+      <script>
+         $(function() {
+            $( "#slider" ).slider();
+         });
+      </script>
+   </head>
+   <div id="demo"></div>
+      <div id = "slider" style="width: 500px"></div>
